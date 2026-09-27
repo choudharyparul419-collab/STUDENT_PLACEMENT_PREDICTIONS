@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Placement Predictor | AI & DS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎓 Student Placement Prediction</h1>
+    <p class="subtitle">AI & DS Mini Project | Machine Learning Powered</p>
+  </header>
+
+  <form id="predictForm">
+    <div class="grid">
+
+      <div class="field"><label>CGPA (0–10)</label>
+        <input type="number" step="0.01" min="0" max="10" id="cgpa" value="8.0" required></div>
+
+      <div class="field"><label>Aptitude Score (0–100)</label>
+        <input type="number" min="0" max="100" id="aptitude" value="75" required></div>
+
+      <div class="field"><label>Communication Skills (0–100)</label>
+        <input type="number" min="0" max="100" id="communication" value="70" required></div>
+
+      <div class="field"><label>Coding Skill Score (0–100)</label>
+        <input type="number" min="0" max="100" id="coding" value="70" required></div>
+
+      <div class="field"><label>Logical Reasoning (0–100)</label>
+        <input type="number" min="0" max="100" id="logical" value="65" required></div>
+
+      <div class="field"><label>Internships Count</label>
+        <input type="number" min="0" max="10" id="internships" value="1" required></div>
+
+      <div class="field"><label>Projects Count</label>
+        <input type="number" min="0" max="10" id="projects" value="2" required></div>
+
+      <div class="field"><label>Certifications Count</label>
+        <input type="number" min="0" max="10" id="certifications" value="2" required></div>
+
+      <div class="field"><label>Backlogs</label>
+        <input type="number" min="0" max="10" id="backlogs" value="0" required></div>
+
+      <div class="field"><label>Attendance (%)</label>
+        <input type="number" min="0" max="100" id="attendance" value="80" required></div>
+
+      <div class="field"><label>Mock Interview Score (0–100)</label>
+        <input type="number" min="0" max="100" id="mock_interview" value="65" required></div>
+
+      <div class="field"><label>Hackathons Participated</label>
+        <input type="number" min="0" max="10" id="hackathons" value="1" required></div>
+
+      <div class="field"><label>GitHub Repos</label>
+        <input type="number" min="0" max="50" id="github" value="5" required></div>
+
+      <div class="field"><label>LinkedIn Connections</label>
+        <input type="number" min="0" max="1000" id="linkedin" value="300" required></div>
+
+      <div class="field"><label>Extracurricular Score (0–100)</label>
+        <input type="number" min="0" max="100" id="extracurricular" value="60" required></div>
+
+      <div class="field"><label>Leadership Score (0–100)</label>
+        <input type="number" min="0" max="100" id="leadership" value="60" required></div>
+
+      <div class="field"><label>Study Hours / Day</label>
+        <input type="number" step="0.5" min="0" max="24" id="study_hours" value="4" required></div>
+
+    </div>
+    <button type="submit" class="btn">🔍 Predict Placement</button>
+  </form>
+
+  <div id="result" class="result hidden"></div>
+</div>
+
+<script>
+document.getElementById("predictForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    cgpa:            parseFloat(document.getElementById("cgpa").value),
+    aptitude:        parseFloat(document.getElementById("aptitude").value),
+    communication:   parseFloat(document.getElementById("communication").value),
+    coding:          parseFloat(document.getElementById("coding").value),
+    logical:         parseFloat(document.getElementById("logical").value),
+    internships:     parseInt(document.getElementById("internships").value),
+    projects:        parseInt(document.getElementById("projects").value),
+    certifications:  parseInt(document.getElementById("certifications").value),
+    backlogs:        parseInt(document.getElementById("backlogs").value),
+    attendance:      parseFloat(document.getElementById("attendance").value),
+    mock_interview:  parseFloat(document.getElementById("mock_interview").value),
+    hackathons:      parseInt(document.getElementById("hackathons").value),
+    github:          parseInt(document.getElementById("github").value),
+    linkedin:        parseInt(document.getElementById("linkedin").value),
+    extracurricular: parseFloat(document.getElementById("extracurricular").value),
+    leadership:      parseFloat(document.getElementById("leadership").value),
+    study_hours:     parseFloat(document.getElementById("study_hours").value),
+  };
+
+  const res = await fetch("/predict", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  const box = document.getElementById("result");
+  box.classList.remove("hidden", "success", "danger");
+
+  if (data.success) {
+    box.classList.add(data.placed ? "success" : "danger");
+    box.innerHTML = `
+      <h2>${data.placed ? "✅ Likely to be PLACED" : "❌ Placement at Risk"}</h2>
+      <p>Confidence: <strong>${data.confidence}%</strong></p>
+      <p class="tip">${data.placed
+        ? "Great profile! Keep polishing interview skills."
+        : "Focus on improving CGPA, aptitude & communication."}</p>`;
+  } else {
+    box.classList.add("danger");
+    box.innerHTML = `<h2>Error</h2><p>${data.error}</p>`;
+  }
+});
+</script>
+</body>
+</html>
